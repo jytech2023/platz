@@ -1,0 +1,325 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Product {
+  id          String      @id @default(cuid())
+  name        String
+  slug        String      @unique
+  description String?
+  image       String?
+  imageKey    String?
+  price       Float?
+  currency    String      @default("USD")
+  active      Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  specGroups  SpecGroup[]
+}
+
+model SpecGroup {
+  id        String     @id @default(cuid())
+  category  String
+  sortOrder Int        @default(0)
+  productId String
+  product   Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  items     SpecItem[]
+}
+
+model SpecItem {
+  id          String    @id @default(cuid())
+  label       String
+  value       String
+  sortOrder   Int       @default(0)
+  specGroupId String
+  specGroup   SpecGroup @relation(fields: [specGroupId], references: [id], onDelete: Cascade)
+}
+
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model ApiUsage {
+  id        String   @id @default(cuid())
+  service   String
+  action    String
+  success   Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@index([service, createdAt])
+}
+
+model Company {
+  id          String        @id @default(cuid())
+  name        String        @unique
+  website     String?
+  industry    String?
+  size        String?
+  linkedinUrl String?
+  phone       String?
+  city        String?
+  country     String?
+  description String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  files       CompanyFile[]
+  contacts    Contact[]
+}
+
+model KnowledgeArticle {
+  id          String           @id @default(cuid())
+  title       String
+  content     String
+  category    String?          // "guide", "policy", "product", "market", "other"
+  indexStatus String           @default("pending")
+  indexError  String?
+  indexedAt   DateTime?
+  chunks      KnowledgeChunk[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model KnowledgeFile {
+  id          String           @id @default(cuid())
+  name        String
+  key         String
+  url         String
+  size        Int
+  mimeType    String
+  driveFileId String?          @unique
+  source      String           @default("upload")
+  trashedAt   DateTime?
+  indexStatus String           @default("pending") // pending | processing | indexed | error
+  indexError  String?
+  indexedAt   DateTime?
+  chunks      KnowledgeChunk[]
+  createdAt   DateTime         @default(now())
+}
+
+model KnowledgeChunk {
+  id                   String             @id @default(cuid())
+  knowledgeFileId      String?
+  knowledgeFile        KnowledgeFile?     @relation(fields: [knowledgeFileId], references: [id], onDelete: Cascade)
+  knowledgeArticleId   String?
+  knowledgeArticle     KnowledgeArticle?  @relation(fields: [knowledgeArticleId], references: [id], onDelete: Cascade)
+  content              String
+  chunkIndex           Int
+  tokenCount           Int?
+  createdAt            DateTime           @default(now())
+
+  @@index([knowledgeFileId])
+  @@index([knowledgeArticleId])
+}
+
+model CompanyFile {
+  id        String   @id @default(cuid())
+  name      String
+  key       String
+  url       String
+  size      Int
+  mimeType  String
+  category  String?
+  notes     String?
+  companyId String
+  createdAt DateTime @default(now())
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+}
+
+model Conversation {
+  id        String        @id @default(cuid())
+  title     String        @default("New conversation")
+  userId    String?
+  user      User?         @relation(fields: [userId], references: [id])
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  messages  ChatMessage[]
+
+  @@index([userId])
+}
+
+model ChatMessage {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String
+  content        String
+  model          String?
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId])
+}
+
+model Contact {
+  id             String          @id @default(cuid())
+  email          String          @unique
+  firstName      String?
+  lastName       String?
+  company        String?
+  jobTitle       String?
+  industry       String?
+  phone          String?
+  linkedinUrl    String?
+  city           String?
+  country        String?
+  companySize    String?
+  companyWebsite String?
+  message        String?
+  source         String?
+  isLead         Boolean         @default(false)
+  isNewsletter   Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  companyId      String?
+  companyRef     Company?        @relation(fields: [companyId], references: [id])
+  outreachEmails OutreachEmail[]
+  portalUser     User?
+}
+
+model User {
+  id             String          @id @default(cuid())
+  auth0Sub       String          @unique
+  email          String          @unique
+  name           String?
+  role           String?         // null = customer, "owner" | "sales" | "fulfillment" | "support" | "content"
+  companyName    String?
+  phone          String?
+  country        String?
+  contactId      String?         @unique
+  contact        Contact?        @relation(fields: [contactId], references: [id])
+  tickets        Ticket[]
+  ticketMessages TicketMessage[]
+  conversations  Conversation[]
+  orders         Order[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model Ticket {
+  id        String          @id @default(cuid())
+  subject   String
+  type      String          @default("inquiry")
+  status    String          @default("open")
+  userId    String
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  TicketMessage[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model TicketMessage {
+  id        String   @id @default(cuid())
+  ticketId  String
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  isAdmin   Boolean  @default(false)
+  content   String
+  createdAt DateTime @default(now())
+
+  @@index([ticketId])
+}
+
+model Order {
+  id             String        @id @default(cuid())
+  orderNumber    String        @unique
+  userId         String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status         String        @default("pending") // pending, confirmed, processing, shipped, delivered, cancelled
+  totalAmount    Float?
+  currency       String        @default("USD")
+  notes          String?
+  shippingName   String?
+  shippingAddr   String?
+  shippingCity   String?
+  shippingCountry String?
+  shippingZip    String?
+  trackingNumber String?
+  trackingUrl    String?
+  carrier        String?
+  shippedAt      DateTime?
+  deliveredAt    DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  items          OrderItem[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productName String
+  quantity  Int      @default(1)
+  unitPrice Float?
+  notes     String?
+  createdAt DateTime @default(now())
+
+  @@index([orderId])
+}
+
+model OutreachCampaign {
+  id               String          @id @default(cuid())
+  name             String
+  status           String          @default("draft")
+  targetIndustries String?
+  targetTitles     String?
+  targetCountries  String?
+  targetDomains    String?
+  senderName       String          @default("Jay from Platz")
+  senderEmail      String          @default("jay.lin@usproglove.com")
+  productFocus     String?
+  aiContext        String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  steps            OutreachStep[]
+  emails           OutreachEmail[]
+}
+
+model OutreachStep {
+  id         String           @id @default(cuid())
+  campaignId String
+  campaign   OutreachCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  stepOrder  Int
+  delayDays  Int
+  subject    String?
+  promptHint String?
+  createdAt  DateTime         @default(now())
+  emails     OutreachEmail[]
+
+  @@index([campaignId])
+}
+
+model OutreachEmail {
+  id          String           @id @default(cuid())
+  campaignId  String
+  campaign    OutreachCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  stepId      String
+  step        OutreachStep     @relation(fields: [stepId], references: [id], onDelete: Cascade)
+  contactId   String
+  contact     Contact          @relation(fields: [contactId], references: [id])
+  subject     String           @default("")
+  htmlContent String           @default("")
+  status      String           @default("pending")
+  sentAt      DateTime?
+  error       String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([campaignId])
+  @@index([contactId])
+  @@index([status])
+}
