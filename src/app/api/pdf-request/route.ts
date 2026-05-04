@@ -13,6 +13,11 @@ const MAX_PDF_BYTES = 30 * 1024 * 1024;
 const TOKEN_TTL_DAYS = 7;
 const TOKEN_MAX_USES = 5;
 
+const FROM_EMAIL = "Platz <platz@notify.usproglove.com>";
+const SALES_CONTACT_EMAIL = "jay.lin@usproglove.us";
+const SALES_CONTACT_NAME = "Jay Lin";
+const CALENDLY_URL = "https://calendly.com/sienovo";
+
 type PdfSource =
   | { kind: "local"; absPath: string; baseName: string; r2Key: string }
   | { kind: "remote"; url: URL; baseName: string; r2Key: string };
@@ -117,6 +122,14 @@ async function sendDownloadEmail(opts: {
         If the button doesn't work, copy this URL into your browser:<br/>
         <span style="word-break:break-all;">${opts.downloadUrl}</span>
       </p>
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;" />
+      <p style="color:#4b5563;font-size:13px;line-height:1.6;">
+        Questions about pricing, distribution, or specifications? Just reply to this email or reach out directly:<br/>
+        <strong>${SALES_CONTACT_NAME}</strong> · <a href="mailto:${SALES_CONTACT_EMAIL}" style="color:#0070C0;">${SALES_CONTACT_EMAIL}</a>
+      </p>
+      <p style="color:#4b5563;font-size:13px;line-height:1.6;margin-top:8px;">
+        Prefer to talk it through? <a href="${CALENDLY_URL}" style="color:#0070C0;">Book a 30-minute call</a>.
+      </p>
       <p style="color:#9ca3af;font-size:12px;">— Platz</p>
     </div>
   `;
@@ -128,7 +141,8 @@ async function sendDownloadEmail(opts: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "Platz <platz@notify.usproglove.com>",
+      from: FROM_EMAIL,
+      reply_to: SALES_CONTACT_EMAIL,
       to: [opts.to],
       subject: `Your requested document: ${opts.pdfTitle}`,
       html,

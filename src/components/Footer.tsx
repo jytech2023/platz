@@ -39,7 +39,7 @@ export default function Footer() {
           <div>
             <p className="font-semibold text-white mb-3 text-sm">{t.contact}</p>
             <ul className="space-y-2 text-sm">
-              <li><a href="mailto:leo.liu@jytech.us" className="hover:text-white transition-colors">leo.liu@jytech.us</a></li>
+              <li><a href="mailto:jay.lin@usproglove.us" className="hover:text-white transition-colors">jay.lin@usproglove.us</a></li>
               <li><a href="https://platz.jytech.us" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">platz.jytech.us</a></li>
               <li>
                 <a href="https://wa.me/8618718688532" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors inline-flex items-center gap-1.5">

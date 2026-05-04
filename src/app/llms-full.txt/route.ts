@@ -48,9 +48,9 @@ The INT-AIBOX-P-8 is an Intelligent Edge AI Analytics Box featuring:
 
 ## Contact Information
 
-- Email: leo.liu@jytech.us
+- Email: jay.lin@usproglove.us
 - WhatsApp: +86 187 1868 8532
-- Demo: https://calendly.com/platz
+- Demo: https://calendly.com/sienovo
 - Address: 600 California St, San Francisco, CA 94108
 
 ---

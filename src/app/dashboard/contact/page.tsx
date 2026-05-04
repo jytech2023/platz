@@ -147,7 +147,7 @@ export default function ContactPage() {
 
       <div className="grid gap-6">
         <div className="grid sm:grid-cols-2 gap-4">
-          <a href="https://calendly.com/platz" target="_blank" rel="noopener noreferrer"
+          <a href="https://calendly.com/sienovo" target="_blank" rel="noopener noreferrer"
             className="bg-white rounded-lg border border-gray-200 p-5 hover:border-gray-300 transition-colors">
             <h3 className="font-semibold text-gray-900 text-sm">{t.bookDemo || "Book a Demo"}</h3>
             <p className="text-xs text-gray-500 mt-1">{t.bookDemoDesc || "Schedule a live product demonstration"}</p>

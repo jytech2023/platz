@@ -266,13 +266,13 @@ export default function LandingPage() {
               </div>
               <div className="mt-5 flex flex-wrap gap-3">
                 <a
-                  href="mailto:leo.liu@jytech.us"
+                  href="mailto:jay.lin@usproglove.us"
                   className="inline-flex items-center justify-center rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-stone-900 transition hover:bg-stone-100"
                 >
-                  leo.liu@jytech.us
+                  jay.lin@usproglove.us
                 </a>
                 <a
-                  href="https://calendly.com/platz"
+                  href="https://calendly.com/sienovo"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center rounded-full border border-white/15 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"

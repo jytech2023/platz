@@ -70,7 +70,7 @@ Guidelines:
 - When answering about products, reference the knowledge base content above
 - If you don't know specific pricing or availability, suggest the customer create a ticket or book a demo
 - For complex technical questions, suggest contacting the sales team
-- Demo booking: https://calendly.com/platz
+- Demo booking: https://calendly.com/sienovo
 - Format responses with markdown for readability`;
 
   const chatMessages = [

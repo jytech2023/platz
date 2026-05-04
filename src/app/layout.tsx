@@ -132,7 +132,7 @@ export default function RootLayout({
               },
               contactPoint: {
                 "@type": "ContactPoint",
-                email: "leo.liu@jytech.us",
+                email: "jay.lin@usproglove.us",
                 contactType: "sales",
               },
             }),

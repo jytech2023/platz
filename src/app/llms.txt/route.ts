@@ -39,7 +39,7 @@ ${postList}
 
 ## Contact
 
-- Email: leo.liu@jytech.us
+- Email: jay.lin@usproglove.us
 - WhatsApp: +86 187 1868 8532
 - Website: ${siteUrl}
 - Address: 600 California St, San Francisco, CA 94108
