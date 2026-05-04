@@ -54,8 +54,18 @@ async function fetchPdf(url) {
   return { buf, contentType: ct || "application/pdf" };
 }
 
+function parseBucketAndPrefix(value) {
+  // R2_BUCKET_NAME may be "bucket" or "bucket/prefix/path".
+  const trimmed = String(value || "").replace(/^\/+|\/+$/g, "");
+  const [bucket, ...prefixParts] = trimmed.split("/");
+  const prefix = prefixParts.length ? prefixParts.join("/") + "/" : "";
+  return { bucket, prefix };
+}
+
 async function uploadToR2(buf, key, contentType) {
-  console.log(`Uploading to R2: ${key}`);
+  const { bucket, prefix } = parseBucketAndPrefix(process.env.R2_BUCKET_NAME);
+  const fullKey = prefix + key;
+  console.log(`Uploading to R2: bucket=${bucket} key=${fullKey}`);
   const client = new S3Client({
     region: "auto",
     endpoint: process.env.R2_S3_ENDPOINT,
@@ -67,13 +77,13 @@ async function uploadToR2(buf, key, contentType) {
   });
   await client.send(
     new PutObjectCommand({
-      Bucket: process.env.R2_BUCKET_NAME,
-      Key: key,
+      Bucket: bucket,
+      Key: fullKey,
       Body: buf,
       ContentType: contentType,
     })
   );
-  const publicUrl = `${process.env.R2_PUBLIC_URL.replace(/\/+$/, "")}/${key}`;
+  const publicUrl = `${process.env.R2_PUBLIC_URL.replace(/\/+$/, "")}/${fullKey}`;
   console.log(`  ok: ${publicUrl}`);
   return publicUrl;
 }

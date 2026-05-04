@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { useI18n } from "@/lib/i18n/context";
+import PdfRequestModal from "./PdfRequestModal";
 
 const SALES_CONTENT = {
   en: {
@@ -164,6 +166,7 @@ const SALES_CONTENT = {
 export default function LandingPage() {
   const { dict, locale } = useI18n();
   const copy = SALES_CONTENT[locale];
+  const [pdfRequest, setPdfRequest] = useState<{ url: string; title: string } | null>(null);
   const heroStats = [
     { value: "15", unit: "cm", label: dict.hero.stat1Label },
     { value: "39", unit: "%", label: dict.hero.stat2Label },
@@ -338,14 +341,13 @@ export default function LandingPage() {
                     ))}
                   </div>
                   <div className="mt-6 flex gap-3">
-                    <a
-                      href={product.pdf}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      type="button"
+                      onClick={() => setPdfRequest({ url: product.pdf, title: `${product.name} catalog` })}
                       className="inline-flex items-center justify-center rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800"
                     >
                       {copy.resourceCta}
-                    </a>
+                    </button>
                     <a
                       href="#contact"
                       className="inline-flex items-center justify-center rounded-full border border-stone-300 px-5 py-3 text-sm font-semibold text-stone-900 transition hover:border-stone-900"
@@ -495,6 +497,12 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+      <PdfRequestModal
+        open={!!pdfRequest}
+        onClose={() => setPdfRequest(null)}
+        pdfUrl={pdfRequest?.url ?? ""}
+        pdfTitle={pdfRequest?.title ?? ""}
+      />
     </main>
   );
 }

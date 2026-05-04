@@ -22,6 +22,19 @@
     "next": "Next",
     "rssTitle": "RSS Feed"
   },
+  "pdfRequest": {
+    "title": "Get the PDF by email",
+    "description": "Enter your work email and we'll send you a download link. The link is valid for 7 days.",
+    "documentLabel": "Document",
+    "emailPlaceholder": "you@company.com",
+    "submit": "Email me the PDF",
+    "submitting": "Sending…",
+    "success": "Sent! Check your inbox at {email} for the download link.",
+    "errorInvalidEmail": "Please enter a valid email address.",
+    "errorGeneric": "Something went wrong. Please try again.",
+    "close": "Close",
+    "privacy": "We use your email only to send the requested document and occasional Platz updates. Unsubscribe anytime."
+  },
   "hero": {
     "tagline": "Japan-Made Medical Beds",
     "title": "Platz Care & Hospital Beds",

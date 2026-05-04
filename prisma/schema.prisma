@@ -323,3 +323,23 @@ model OutreachEmail {
   @@index([contactId])
   @@index([status])
 }
+
+model PdfDownload {
+  id          String    @id @default(cuid())
+  token       String    @unique
+  email       String
+  pdfKey      String
+  pdfTitle    String
+  sourceUrl   String?
+  expiresAt   DateTime
+  maxUses     Int       @default(0)
+  useCount    Int       @default(0)
+  firstUsedAt DateTime?
+  lastUsedAt  DateTime?
+  lastUserAgent String?
+  lastIp      String?
+  createdAt   DateTime  @default(now())
+
+  @@index([email])
+  @@index([expiresAt])
+}

@@ -22,6 +22,19 @@
     "next": "下一页",
     "rssTitle": "RSS 订阅"
   },
+  "pdfRequest": {
+    "title": "通过邮件获取 PDF",
+    "description": "请填写您的工作邮箱,我们会发送下载链接到您的邮箱,链接 7 天内有效。",
+    "documentLabel": "资料",
+    "emailPlaceholder": "you@company.com",
+    "submit": "发送 PDF 到邮箱",
+    "submitting": "发送中…",
+    "success": "已发送!请到 {email} 查收下载链接。",
+    "errorInvalidEmail": "请输入有效的邮箱地址。",
+    "errorGeneric": "出现错误,请稍后重试。",
+    "close": "关闭",
+    "privacy": "我们仅使用您的邮箱发送所请求的资料及 Platz 偶尔的更新通知,您可以随时取消订阅。"
+  },
   "hero": {
     "tagline": "日本制造医疗床",
     "title": "Platz 护理床与医院床",
