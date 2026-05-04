@@ -1,0 +1,16 @@
+{
+  "startedAt": "2026-05-04T04:59:19.515Z",
+  "maxPages": 120,
+  "maxDepth": 3,
+  "timeoutMs": 15000,
+  "dryRun": false,
+  "outDir": "content/site-sync",
+  "sites": [],
+  "news": {
+    "sourceFile": "content/site-sync/platz-ltd-co-jp/whatnew--entry-html.mdx",
+    "parsed": 20,
+    "written": 20,
+    "removed": 0
+  },
+  "finishedAt": "2026-05-04T04:59:19.521Z"
+}

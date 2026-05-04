@@ -52,7 +52,7 @@ export default function NewsletterSignup() {
         <button
           type="submit"
           disabled={status === "loading"}
-          className="px-4 py-2 bg-accent hover:bg-red-700 disabled:bg-accent/50 text-white text-sm rounded font-medium transition-colors whitespace-nowrap"
+          className="px-4 py-2 bg-accent hover:bg-[#005baa] disabled:bg-accent/50 text-white text-sm rounded font-medium transition-colors whitespace-nowrap"
         >
           {status === "loading" ? "..." : "Subscribe"}
         </button>

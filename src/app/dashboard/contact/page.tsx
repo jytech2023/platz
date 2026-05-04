@@ -1,8 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useI18n } from "@/lib/i18n/context";
+
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (
+        container: string | HTMLElement,
+        options: {
+          sitekey: string;
+          callback: (token: string) => void;
+          "expired-callback"?: () => void;
+          "error-callback"?: () => void;
+          theme?: "light" | "dark" | "auto";
+        }
+      ) => string;
+      reset: (widgetId?: string) => void;
+    };
+  }
+}
 
 export default function ContactPage() {
   const router = useRouter();
@@ -10,22 +28,97 @@ export default function ContactPage() {
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileReady, setTurnstileReady] = useState(false);
+  const [turnstileError, setTurnstileError] = useState("");
+  const turnstileRef = useRef<HTMLDivElement | null>(null);
+  const turnstileWidgetId = useRef<string | null>(null);
   const { dict } = useI18n();
   const t = dict.dashboard?.contact || {};
+  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+
+  useEffect(() => {
+    if (!turnstileSiteKey || typeof window === "undefined") return;
+
+    const existingScript = document.querySelector<HTMLScriptElement>(
+      'script[src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"]'
+    );
+
+    const renderWidget = () => {
+      if (!window.turnstile || !turnstileRef.current || turnstileWidgetId.current) return;
+
+      turnstileWidgetId.current = window.turnstile.render(turnstileRef.current, {
+        sitekey: turnstileSiteKey,
+        theme: "light",
+        callback: (token) => {
+          setTurnstileToken(token);
+          setTurnstileError("");
+        },
+        "expired-callback": () => {
+          setTurnstileToken("");
+          setTurnstileError("Verification expired. Please try again.");
+        },
+        "error-callback": () => {
+          setTurnstileToken("");
+          setTurnstileError("Verification failed. Please refresh and try again.");
+        },
+      });
+      setTurnstileReady(true);
+    };
+
+    if (!existingScript) {
+      const script = document.createElement("script");
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      script.async = true;
+      script.defer = true;
+      script.onload = renderWidget;
+      document.head.appendChild(script);
+      return () => {
+        script.remove();
+      };
+    }
+
+    if (window.turnstile) {
+      renderWidget();
+      return;
+    }
+
+    const onLoad = () => renderWidget();
+    existingScript.addEventListener("load", onLoad);
+    return () => existingScript.removeEventListener("load", onLoad);
+  }, [turnstileSiteKey]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!subject.trim() || !message.trim()) return;
+    if (!turnstileSiteKey) {
+      setTurnstileError("Turnstile is not configured.");
+      return;
+    }
+    if (!turnstileToken) {
+      setTurnstileError("Please complete the verification first.");
+      return;
+    }
     setSubmitting(true);
 
-    const res = await fetch("/api/dashboard/tickets", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ subject, type: "support", message }),
-    });
+    try {
+      const res = await fetch("/api/dashboard/tickets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subject, type: "support", message, turnstileToken }),
+      });
 
-    if (res.ok) setSubmitted(true);
-    setSubmitting(false);
+      if (res.ok) {
+        setSubmitted(true);
+      } else {
+        const data = await res.json().catch(() => null);
+        setTurnstileError(data?.error || "Failed to send message.");
+        window.turnstile?.reset(turnstileWidgetId.current ?? undefined);
+        setTurnstileToken("");
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -79,10 +172,22 @@ export default function ContactPage() {
               placeholder={t.messagePlaceholder || "Describe your question or request..."}
               rows={5} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none focus:outline-none focus:border-gray-900" required />
           </div>
+          <div className="space-y-2">
+            <div ref={turnstileRef} />
+            {!turnstileSiteKey && (
+              <p className="text-xs text-amber-600">
+                Turnstile is not configured yet. Add NEXT_PUBLIC_TURNSTILE_SITE_KEY and TURNSTILE_SECRET_KEY.
+              </p>
+            )}
+            {turnstileError && <p className="text-xs text-red-600">{turnstileError}</p>}
+          </div>
           <button type="submit" disabled={submitting}
-            className="w-full bg-gray-900 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-gray-800 disabled:bg-gray-300">
+            className="w-full bg-gray-900 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed">
             {submitting ? (t.sending || "Sending...") : (t.send || "Send Message")}
           </button>
+          {!turnstileReady && turnstileSiteKey && (
+            <p className="text-xs text-gray-500">Loading verification widget...</p>
+          )}
         </form>
       </div>
     </main>

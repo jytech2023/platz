@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+import Link from "next/link";
 import NewsletterSignup from "./NewsletterSignup";
 import { useI18n } from "@/lib/i18n/context";
 
@@ -13,7 +15,15 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid md:grid-cols-4 gap-8">
           <div>
-            <p className="text-xl font-bold text-white mb-2">PLATZ</p>
+            <div className="mb-3 inline-flex items-center gap-2 rounded-md bg-white/95 px-3 py-2">
+              <Image
+                src="/images/brand/platz-logo.png"
+                alt="Platz"
+                width={244}
+                height={84}
+                className="h-8 w-auto"
+              />
+            </div>
             <p className="text-sm leading-relaxed">{t.tagline}</p>
           </div>
           <div>
@@ -23,7 +33,7 @@ export default function Footer() {
               <li><a href="#scenarios" className="hover:text-white transition-colors">{nav.scenarios}</a></li>
               <li><a href="#specs" className="hover:text-white transition-colors">{nav.specs}</a></li>
               <li><a href="#platform" className="hover:text-white transition-colors">{nav.platform}</a></li>
-              <li><a href="/blog" className="hover:text-white transition-colors">{nav.blog}</a></li>
+              <li><Link href="/blog" className="hover:text-white transition-colors">{nav.blog}</Link></li>
             </ul>
           </div>
           <div>

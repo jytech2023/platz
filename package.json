@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "sync:sites": "node scripts/sync-platz-sites.mjs",
+    "sync:sites:daily": "node scripts/sync-platz-sites.mjs --max-pages 200 --max-depth 4"
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^4.16.1",

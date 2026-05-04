@@ -1,0 +1,50 @@
+name: Daily Site Sync
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Daily at 02:30 UTC
+    - cron: "30 2 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  daily_site_sync:
+    name: Daily Site Sync
+    runs-on: ubuntu-latest
+    env:
+      AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}
+      FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+      FIRECLOWER_API_KEY: ${{ secrets.FIRECLOWER_API_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync source sites
+        run: npm run sync:sites:daily
+
+      - name: Commit and push synced content
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if [[ -z "$(git status --porcelain content/site-sync content/news)" ]]; then
+            echo "No synced content changes to commit"
+            exit 0
+          fi
+
+          git add content/site-sync content/news
+          git commit -m "chore: daily sync site content"
+          git push

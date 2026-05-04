@@ -34,7 +34,7 @@ export default function Hero() {
                 href="https://calendly.com/platz"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-accent hover:bg-red-700 text-white px-8 py-3 rounded font-medium text-center transition-colors"
+                className="bg-accent hover:bg-[#005baa] text-white px-8 py-3 rounded font-medium text-center transition-colors"
               >
                 {t.requestDemo}
               </a>

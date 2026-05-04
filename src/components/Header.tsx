@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { useI18n } from "@/lib/i18n/context";
 
 export default function Header() {
@@ -19,15 +21,20 @@ export default function Header() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-gray-100">
+    <header className="sticky top-0 z-50 border-b border-stone-200/80 bg-white/90 backdrop-blur">
       <div className="bg-accent h-1" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <a href="/" className="flex items-center gap-2">
-            <span className="text-2xl font-bold tracking-tight text-gray-900">
-              PLATZ
-            </span>
-          </a>
+          <Link href="/" className="flex items-center gap-2" aria-label="Platz home">
+            <Image
+              src="/images/brand/platz-logo.png"
+              alt="Platz"
+              width={244}
+              height={84}
+              priority
+              className="h-9 w-auto"
+            />
+          </Link>
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
             {NAV_ITEMS.map((item) => (
               <a
@@ -47,9 +54,15 @@ export default function Header() {
             </button>
             <a
               href="/login"
-              className="bg-accent text-white px-5 py-2 rounded hover:bg-red-700 transition-colors"
+              className="text-gray-600 hover:text-accent transition-colors"
             >
               {t.login || "Login"}
+            </a>
+            <a
+              href="#contact"
+              className="bg-accent text-white px-5 py-2 rounded-full hover:bg-[#005baa] transition-colors"
+            >
+              {t.contactSales || "Contact Sales"}
             </a>
           </nav>
           <button
@@ -88,10 +101,17 @@ export default function Header() {
             </button>
             <a
               href="/login"
-              className="block mt-2 text-center bg-accent text-white px-5 py-2 rounded hover:bg-red-700 transition-colors text-sm font-medium"
+              className="block mt-2 text-center border border-gray-300 text-gray-700 px-5 py-2 rounded-full hover:border-accent hover:text-accent transition-colors text-sm font-medium"
               onClick={() => setOpen(false)}
             >
               {t.login || "Login"}
+            </a>
+            <a
+              href="#contact"
+              className="block mt-2 text-center bg-accent text-white px-5 py-2 rounded-full hover:bg-[#005baa] transition-colors text-sm font-medium"
+              onClick={() => setOpen(false)}
+            >
+              {t.contactSales || "Contact Sales"}
             </a>
           </div>
         </nav>

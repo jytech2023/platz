@@ -11,8 +11,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
-    const brevoApiKey = process.env.BREVO_API_KEY;
-    if (!brevoApiKey) {
+    const resendApiKey = process.env.RESEND_API_KEY;
+    if (!resendApiKey) {
       return NextResponse.json(
         { error: "Service unavailable" },
         { status: 503 }
@@ -70,28 +70,31 @@ export async function POST(req: NextRequest) {
     if (enrichment?.country) attributes.COUNTRY = enrichment.country;
     if (enrichment?.city) attributes.CITY = enrichment.city;
 
-    const contactRes = await fetch("https://api.brevo.com/v3/contacts", {
-      method: "POST",
-      headers: {
-        "api-key": brevoApiKey,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email,
-        attributes,
-        // List 5: "Platz AIBOX Leads"
-        listIds: [5],
-        updateEnabled: true,
-      }),
-    });
+    const brevoApiKey = process.env.BREVO_API_KEY;
+    if (brevoApiKey) {
+      const contactRes = await fetch("https://api.brevo.com/v3/contacts", {
+        method: "POST",
+        headers: {
+          "api-key": brevoApiKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          attributes,
+          // List 5: "Platz AIBOX Leads"
+          listIds: [5],
+          updateEnabled: true,
+        }),
+      });
 
-    if (!contactRes.ok) {
-      const err = await contactRes.json();
-      if (err.code !== "duplicate_parameter") {
-        return NextResponse.json(
-          { error: "Failed to register" },
-          { status: 500 }
-        );
+      if (!contactRes.ok) {
+        const err = await contactRes.json();
+        if (err.code !== "duplicate_parameter") {
+          return NextResponse.json(
+            { error: "Failed to register" },
+            { status: 500 }
+          );
+        }
       }
     }
 
@@ -122,22 +125,27 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    const notificationEmails = (process.env.NOTIFICATION_EMAILS || "")
+      .split(",")
+      .map((e) => e.trim())
+      .filter(Boolean);
+
+    if (notificationEmails.length === 0) {
+      notificationEmails.push("jay.lin@usproglove.com");
+    }
+
     // Send notification email to sales team
-    await fetch("https://api.brevo.com/v3/smtp/email", {
+    const notificationRes = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
-        "api-key": brevoApiKey,
+        Authorization: `Bearer ${resendApiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        sender: { name: "Platz Website", email: "jay.lin@usproglove.com" },
-        to: (process.env.NOTIFICATION_EMAILS || "")
-          .split(",")
-          .map((e) => e.trim())
-          .filter(Boolean)
-          .map((e) => ({ email: e })),
+        from: "Platz <platz@notify.usproglove.com>",
+        to: notificationEmails,
         subject: `New Inquiry from ${name || enrichment?.firstName || "Website Visitor"}${enrichment?.company ? ` (${enrichment.company})` : ""}`,
-        htmlContent: `
+        html: `
           <h2>New Platz AIBOX Inquiry</h2>
           <p><strong>Name:</strong> ${name || "N/A"}</p>
           <p><strong>Email:</strong> ${email}</p>
@@ -150,11 +158,33 @@ export async function POST(req: NextRequest) {
       }),
     });
 
+    if (!notificationRes.ok) {
+      const errText = await notificationRes.text();
+      return NextResponse.json(
+        { error: `Failed to send notification: ${errText}` },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({ success: true });
-  } catch {
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+  } catch (err: unknown) {
+    try {
+      if (err instanceof Error) {
+        console.error("/api/subscribe error:", err.message);
+        console.error(err.stack);
+      } else {
+        console.error("/api/subscribe error:", err);
+      }
+    } catch (logErr) {
+      // ignore logging failures
+      console.error("/api/subscribe logging failed:", logErr);
+    }
+
+    if (process.env.NODE_ENV !== "production") {
+      const msg = err instanceof Error ? err.message : String(err);
+      return NextResponse.json({ error: msg }, { status: 500 });
+    }
+
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

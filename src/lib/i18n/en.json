@@ -6,10 +6,21 @@
     "cases": "Cases",
     "specs": "Specifications",
     "platform": "Platform",
-    "blog": "Blog",
+    "news": "News",
     "login": "Login",
     "bookDemo": "Book a Demo",
     "contactSales": "Contact Sales"
+  },
+  "news": {
+    "title": "News",
+    "subtitle": "Product launches, announcements, and updates from Platz Co., Ltd. (Japan)",
+    "empty": "No news yet. Check back soon.",
+    "back": "Back to News",
+    "viewOriginal": "View original on platz-ltd.co.jp",
+    "viewLink": "Open link",
+    "previous": "Previous",
+    "next": "Next",
+    "rssTitle": "RSS Feed"
   },
   "hero": {
     "tagline": "Japan-Made Medical Beds",

@@ -2,6 +2,34 @@ import { NextRequest, NextResponse } from "next/server";
 import { getUser } from "@/lib/auth0";
 import { prisma } from "@/lib/prisma";
 
+async function verifyTurnstile(token: string, ip?: string | null) {
+  const secret = process.env.TURNSTILE_SECRET_KEY;
+  if (!secret) {
+    return { ok: false, error: "Turnstile is not configured" };
+  }
+
+  const formData = new FormData();
+  formData.append("secret", secret);
+  formData.append("response", token);
+  if (ip) formData.append("remoteip", ip);
+
+  const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    return { ok: false, error: "Failed to verify Turnstile" };
+  }
+
+  const data = (await response.json()) as { success?: boolean; [key: string]: unknown };
+  if (!data.success) {
+    return { ok: false, error: "Verification failed" };
+  }
+
+  return { ok: true };
+}
+
 export async function GET() {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -19,9 +47,18 @@ export async function POST(req: NextRequest) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { subject, type, message } = await req.json();
+  const { subject, type, message, turnstileToken } = await req.json();
   if (!subject?.trim() || !message?.trim()) {
     return NextResponse.json({ error: "Subject and message are required" }, { status: 400 });
+  }
+
+  if (!turnstileToken?.trim()) {
+    return NextResponse.json({ error: "Please complete the verification" }, { status: 400 });
+  }
+
+  const verification = await verifyTurnstile(turnstileToken, req.headers.get("x-forwarded-for"));
+  if (!verification.ok) {
+    return NextResponse.json({ error: verification.error }, { status: 400 });
   }
 
   const ticket = await prisma.ticket.create({

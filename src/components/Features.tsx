@@ -28,7 +28,7 @@ export default function Features() {
               key={i}
               className="p-6 rounded-lg border border-gray-100 hover:border-accent/30 hover:shadow-lg transition-all group"
             >
-              <div className="w-12 h-12 bg-red-50 rounded-lg flex items-center justify-center text-accent mb-4 group-hover:bg-accent group-hover:text-white transition-colors">
+              <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center text-accent mb-4 group-hover:bg-accent group-hover:text-white transition-colors">
                 <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d={ICONS[i]} />
                 </svg>

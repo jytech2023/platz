@@ -108,7 +108,7 @@ export default function Products() {
               >
                 {/* Tag */}
                 <div className="px-6 pt-5 pb-2 flex items-center gap-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-accent bg-red-50 px-2.5 py-1 rounded-full">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-accent bg-blue-50 px-2.5 py-1 rounded-full">
                     {tag}
                   </span>
                 </div>

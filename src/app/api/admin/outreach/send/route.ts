@@ -8,9 +8,9 @@ const UNAUTHORIZED = NextResponse.json({ error: "Unauthorized" }, { status: 403 
 export async function POST(req: NextRequest) {
   if (!(await isAdmin())) return UNAUTHORIZED;
 
-  const brevoApiKey = process.env.BREVO_API_KEY;
-  if (!brevoApiKey) {
-    return NextResponse.json({ error: "Brevo API key not configured" }, { status: 503 });
+  const resendApiKey = process.env.RESEND_API_KEY;
+  if (!resendApiKey) {
+    return NextResponse.json({ error: "Resend API key not configured" }, { status: 503 });
   }
 
   const body = await req.json();
@@ -35,24 +35,19 @@ export async function POST(req: NextRequest) {
 
   for (const email of emails) {
     try {
-      const recipientName = [email.contact.firstName, email.contact.lastName]
-        .filter(Boolean)
-        .join(" ");
+      const fromEmail = email.campaign.senderEmail || "platz@notify.usproglove.com";
 
-      const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+      const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
-          "api-key": brevoApiKey,
+          Authorization: `Bearer ${resendApiKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          sender: {
-            name: email.campaign.senderName,
-            email: email.campaign.senderEmail,
-          },
-          to: [{ email: email.contact.email, name: recipientName || undefined }],
+          from: `${email.campaign.senderName} <${fromEmail}>`,
+          to: [email.contact.email],
           subject: email.subject,
-          htmlContent: email.htmlContent,
+          html: email.htmlContent,
         }),
       });
 
@@ -61,7 +56,7 @@ export async function POST(req: NextRequest) {
           where: { id: email.id },
           data: { status: "sent", sentAt: new Date() },
         });
-        await trackApiUsage("brevo", "outreach_send", true);
+        await trackApiUsage("resend", "outreach_send", true);
         sent++;
       } else {
         const errText = await res.text();
@@ -69,7 +64,7 @@ export async function POST(req: NextRequest) {
           where: { id: email.id },
           data: { status: "failed", error: errText.slice(0, 500) },
         });
-        await trackApiUsage("brevo", "outreach_send", false);
+        await trackApiUsage("resend", "outreach_send", false);
         failed++;
       }
     } catch (e) {

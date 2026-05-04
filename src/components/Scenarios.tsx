@@ -42,7 +42,7 @@ export default function Scenarios() {
                 <p className="text-sm text-gray-500 mb-4">{scenario.description}</p>
                 <div className="flex flex-wrap gap-2">
                   {scenario.algorithms.map((algo: string) => (
-                    <span key={algo} className="text-xs bg-red-50 text-accent px-2 py-1 rounded">
+                    <span key={algo} className="text-xs bg-blue-50 text-accent px-2 py-1 rounded">
                       {algo}
                     </span>
                   ))}
